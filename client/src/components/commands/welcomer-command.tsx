@@ -161,7 +161,8 @@ export default function WelcomerCommand() {
       welcomeMessage,
       includeImage,
       backgroundImage,
-      textColor
+      textColor,
+      customBackgroundUrl: backgroundImage === 'custom' ? customBackgroundUrl : null
     });
   };
   
@@ -356,6 +357,7 @@ export default function WelcomerCommand() {
               includeImage={includeImage}
               backgroundImage={backgroundImage}
               textColor={textColor}
+              customBackgroundUrl={customBackgroundUrl}
             />
             
             <div className="mt-6 text-right">

@@ -62,7 +62,7 @@ export default function WelcomePreview({
         {includeImage && (
           <div 
             className="relative w-full h-48 bg-cover bg-center rounded border border-gray-700"
-            style={{ backgroundImage: `url('${backgroundImages[backgroundImage as keyof typeof backgroundImages]}')` }}
+            style={{ backgroundImage: `url('${getBackgroundImageUrl()}')` }}
           >
             <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center p-4">
               <div className="text-3xl font-bold mb-2" style={{ color: textColor }}>WELCOME</div>
