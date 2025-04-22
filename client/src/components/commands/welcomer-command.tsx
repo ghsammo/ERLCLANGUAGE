@@ -173,20 +173,17 @@ export default function WelcomerCommand() {
                   <SelectValue placeholder="#select-channel" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">
-                    #select-channel
-                  </SelectItem>
-                  {channels?.map((channel: any) => (
+                  {(channels?.length > 0 ? channels.map((channel: any) => (
                     <SelectItem key={channel.id} value={channel.id}>
                       #{channel.name}
                     </SelectItem>
-                  )) || (
+                  )) : (
                     <>
                       <SelectItem value="welcome">#welcome</SelectItem>
                       <SelectItem value="general">#general</SelectItem>
                       <SelectItem value="introductions">#introductions</SelectItem>
                     </>
-                  )}
+                  ))}
                 </SelectContent>
               </Select>
             </div>

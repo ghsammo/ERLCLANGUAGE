@@ -223,21 +223,18 @@ export default function LoggingCommand() {
               <SelectValue placeholder="#select-channel" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">
-                #select-channel
-              </SelectItem>
-              {channels?.map((channel: any) => (
+              {(channels?.length > 0 ? channels.map((channel: any) => (
                 <SelectItem key={channel.id} value={channel.id}>
                   #{channel.name}
                 </SelectItem>
-              )) || (
+              )) : (
                 <>
                   <SelectItem value="general">#general</SelectItem>
                   <SelectItem value="logs">#logs</SelectItem>
                   <SelectItem value="admin-logs">#admin-logs</SelectItem>
                   <SelectItem value="mod-logs">#mod-logs</SelectItem>
                 </>
-              )}
+              ))}
             </SelectContent>
           </Select>
         </div>
