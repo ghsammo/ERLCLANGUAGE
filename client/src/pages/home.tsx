@@ -8,7 +8,7 @@ export default function Home() {
     <div className="grid-background min-h-screen bg-black p-4">
       <div className="flex flex-col items-center justify-center">
         <img 
-          src="https://cdn.discordapp.com/attachments/1364145628241727561/1364349464319496322/Untitled_design.png" 
+          src="/Untitled design.png" 
           alt="ERLC LANGUAGE Logo" 
           className="w-48 h-48 mb-8"
         />
