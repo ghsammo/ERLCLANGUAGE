@@ -1,0 +1,78 @@
+==> Cloning from https://github.com/ghsammo/ERLCLANGUAGE
+==> Checking out commit 893dd51ff6ebb1e24158b36c1d232d1da830c4c3 in branch main
+==> Downloading cache...
+==> Transferred 237MB in 7s. Extraction took 5s.
+==> Using Node.js version 22.14.0 (default)
+==> Docs on specifying a Node.js version: https://render.com/docs/node-version
+==> Using Bun version 1.1.0 (default)
+==> Docs on specifying a bun version: https://render.com/docs/bun-version
+==> Running build command 'npm install; npm run build'...
+up to date, audited 559 packages in 1s
+84 packages are looking for funding
+  run `npm fund` for details
+7 moderate severity vulnerabilities
+To address issues that do not require attention, run:
+  npm audit fix
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+Run `npm audit` for details.
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+vite v5.4.14 building for production...
+transforming...
+Browserslist: browsers data (caniuse-lite) is 6 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+✓ 104 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/public/index.html                   0.60 kB │ gzip:  0.42 kB
+../dist/public/assets/index-D_-H1XuN.css   62.99 kB │ gzip: 11.09 kB
+../dist/public/assets/index-CUFjHTO1.js   233.44 kB │ gzip: 76.12 kB
+✓ built in 1.89s
+  dist/index.js  48.5kb
+⚡ Done in 6ms
+==> Uploading build...
+==> Uploaded in 6.8s. Compression took 3.0s
+==> Build successful 🎉
+==> Deploying...
+==> Running 'npm run start'
+> rest-express@1.0.0 start
+> NODE_ENV=production node dist/index.js
+node:fs:1364
+  const result = binding.mkdir(
+                         ^
+Error: EACCES: permission denied, mkdir '/data/uploads'
+    at Object.mkdirSync (node:fs:1364:26)
+    at module.exports.makeDirSync (/opt/render/project/src/node_modules/fs-extra/lib/mkdirs/make-dir.js:23:13)
+    at file:///opt/render/project/src/dist/index.js:1112:5
+    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:578:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5) {
+  errno: -13,
+  code: 'EACCES',
+  syscall: 'mkdir',
+  path: '/data/uploads'
+}
+Node.js v22.14.0
+==> Exited with status 1
+==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
+==> Running 'npm run start'
+> rest-express@1.0.0 start
+> NODE_ENV=production node dist/index.js
+node:fs:1364
+  const result = binding.mkdir(
+                         ^
+Error: EACCES: permission denied, mkdir '/data/uploads'
+    at Object.mkdirSync (node:fs:1364:26)
+    at module.exports.makeDirSync (/opt/render/project/src/node_modules/fs-extra/lib/mkdirs/make-dir.js:23:13)
+    at file:///opt/render/project/src/dist/index.js:1112:5
+    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:578:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5) {
+  errno: -13,
+  code: 'EACCES',
+  syscall: 'mkdir',
+  path: '/data/uploads'
+}
+Node.js v22.14.0
