@@ -7,6 +7,7 @@ interface WelcomePreviewProps {
   includeImage: boolean;
   backgroundImage: string;
   textColor: string;
+  customBackgroundUrl?: string | null;
 }
 
 export default function WelcomePreview({
@@ -15,7 +16,8 @@ export default function WelcomePreview({
   username,
   includeImage,
   backgroundImage,
-  textColor
+  textColor,
+  customBackgroundUrl
 }: WelcomePreviewProps) {
   const [formattedMessage, setFormattedMessage] = useState("");
   const [previewImageUrl, setPreviewImageUrl] = useState("");
@@ -36,6 +38,14 @@ export default function WelcomePreview({
     forest: "https://i.imgur.com/2JXI37J.jpg",
     city: "https://i.imgur.com/3Dy7tJv.jpg",
     abstract: "https://i.imgur.com/0udsGMg.jpg"
+  };
+  
+  // Get the background image URL
+  const getBackgroundImageUrl = () => {
+    if (backgroundImage === 'custom' && customBackgroundUrl) {
+      return customBackgroundUrl;
+    } 
+    return backgroundImages[backgroundImage as keyof typeof backgroundImages] || backgroundImages.default;
   };
   
   return (

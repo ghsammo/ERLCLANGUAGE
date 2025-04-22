@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/api";
 import WelcomePreview from "@/components/preview/welcome-preview";
+import { Upload, CircleCheck, AlertCircle } from "lucide-react";
 
 export default function WelcomerCommand() {
   const { toast } = useToast();
@@ -24,6 +25,10 @@ export default function WelcomerCommand() {
   const [includeImage, setIncludeImage] = useState(true);
   const [backgroundImage, setBackgroundImage] = useState("default");
   const [textColor, setTextColor] = useState("#FFFFFF");
+  const [customBackgroundUrl, setCustomBackgroundUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   
   // Colors available for selection
   const availableColors = [
@@ -38,8 +43,54 @@ export default function WelcomerCommand() {
     { value: "default", label: "Default (Discord theme)" },
     { value: "forest", label: "Forest" },
     { value: "city", label: "City" },
-    { value: "abstract", label: "Abstract" }
+    { value: "abstract", label: "Abstract" },
+    { value: "custom", label: "Custom (Upload)" }
   ];
+  
+  // Handle file upload
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    // Reset states
+    setUploadError(null);
+    setIsUploading(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      const response = await fetch(`/api/servers/${serverId}/welcome/upload`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to upload image');
+      }
+      
+      const data = await response.json();
+      
+      // Update state with the new custom background
+      setBackgroundImage('custom');
+      setCustomBackgroundUrl(data.config.customBackgroundUrl);
+      
+      toast({
+        title: "Upload Successful",
+        description: "Custom background has been uploaded",
+      });
+    } catch (error) {
+      console.error('Upload error:', error);
+      setUploadError('Failed to upload image. Please try again.');
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload custom background",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
   
   // Fetch channels
   const { data: channels } = useQuery({
@@ -62,8 +113,18 @@ export default function WelcomerCommand() {
       setIncludeImage(config.includeImage);
       setBackgroundImage(config.backgroundImage);
       setTextColor(config.textColor);
+      if (config.customBackgroundUrl) {
+        setCustomBackgroundUrl(config.customBackgroundUrl);
+      }
     }
   }, [config]);
+  
+  // Open file dialog when user selects "Custom" background
+  useEffect(() => {
+    if (backgroundImage === 'custom' && !customBackgroundUrl && fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  }, [backgroundImage, customBackgroundUrl]);
   
   // Update config mutation
   const updateConfig = useMutation({
@@ -221,6 +282,52 @@ export default function WelcomerCommand() {
                     ))}
                   </SelectContent>
                 </Select>
+                
+                {/* Hidden file input for custom background upload */}
+                <input 
+                  type="file" 
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept="image/*"
+                  className="hidden"
+                />
+                
+                {/* Show upload button when "Custom" is selected */}
+                {backgroundImage === 'custom' && (
+                  <div className="mt-2">
+                    <div className={`flex items-center p-2 rounded-md ${uploadError ? 'bg-red-900/20 border border-red-700' : customBackgroundUrl ? 'bg-green-900/20 border border-green-700' : 'bg-gray-800 border border-gray-700'}`}>
+                      {isUploading ? (
+                        <div className="flex items-center text-gray-300 text-sm">
+                          <div className="animate-spin h-4 w-4 border-2 border-gray-300 border-t-transparent rounded-full mr-2"></div>
+                          Uploading...
+                        </div>
+                      ) : uploadError ? (
+                        <div className="flex items-center text-red-400 text-sm">
+                          <AlertCircle className="h-4 w-4 mr-2" />
+                          {uploadError}
+                        </div>
+                      ) : customBackgroundUrl ? (
+                        <div className="flex items-center text-green-400 text-sm">
+                          <CircleCheck className="h-4 w-4 mr-2" />
+                          Custom background uploaded
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between w-full">
+                          <span className="text-gray-300 text-sm">No custom background selected</span>
+                          <Button 
+                            type="button" 
+                            size="sm" 
+                            className="bg-[#5865F2] hover:bg-blue-600 text-white font-medium text-xs rounded"
+                            onClick={() => fileInputRef.current?.click()}
+                          >
+                            <Upload className="h-3 w-3 mr-1" />
+                            Upload
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
               
               <div className="mb-4">
