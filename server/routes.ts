@@ -16,23 +16,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Ensure uploads directory exists with persistent storage path
-const uploadsDir = process.env.NODE_ENV === 'production' 
-  ? '/data/uploads'  // Persistent directory on Render
-  : path.join(__dirname, "../uploads");
-fs.ensureDirSync(uploadsDir);
-
-// Configure multer for file uploads
-const storage_upload = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadsDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname);
-    cb(null, 'background-' + uniqueSuffix + ext);
-  }
-});
+// Configure multer for memory storage
+const storage_upload = multer.memoryStorage();
 
 const upload = multer({
   storage: storage_upload,
@@ -226,11 +211,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "No image file provided" });
       }
 
-      // Get the relative path to the image
-      const relativePath = path.relative(path.join(__dirname, ".."), file.path);
-      const imageUrl = `/${relativePath.replace(/\\/g, '/')}`;
+      // Upload to Discord channel
+      const bot = getBot();
+      if (!bot) {
+        return res.status(500).json({ message: "Discord bot not available" });
+      }
+      
+      const channel = await bot.getClient().channels.fetch('1364145628241727561');
+      if (!channel?.isTextBased()) {
+        return res.status(500).json({ message: "Discord channel not available" });
+      }
 
-      // Update the welcome config with the custom image URL
+      const attachment = { 
+        attachment: file.buffer,
+        name: `custom_${serverId}_${Date.now()}.png`
+      };
+      const message = await channel.send({ files: [attachment] });
+      const imageUrl = message.attachments.first()?.url;
+      
+      if (!imageUrl) {
+        return res.status(500).json({ message: "Failed to upload image" });
+      }
+
+      // Update the welcome config with the Discord CDN URL
       const currentConfig = await storage.getWelcomeConfig(serverId);
       const updatedConfig = {
         ...currentConfig,
