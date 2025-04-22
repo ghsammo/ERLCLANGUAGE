@@ -16,8 +16,10 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, "../uploads");
+// Ensure uploads directory exists with persistent storage path
+const uploadsDir = process.env.NODE_ENV === 'production' 
+  ? '/data/uploads'  // Persistent directory on Render
+  : path.join(__dirname, "../uploads");
 fs.ensureDirSync(uploadsDir);
 
 // Configure multer for file uploads
