@@ -48,6 +48,10 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check endpoint for UptimeRobot
+  app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok' });
+  });
   // Initialize Discord bot if token is available
   try {
     await startBot();
