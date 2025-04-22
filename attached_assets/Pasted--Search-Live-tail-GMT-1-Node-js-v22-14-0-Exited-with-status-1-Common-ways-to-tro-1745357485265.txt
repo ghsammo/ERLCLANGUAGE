@@ -1,0 +1,189 @@
+
+Search
+
+Live tail
+GMT+1
+
+
+Node.js v22.14.0
+==> Exited with status 1
+==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
+==> Running 'npm run start'
+> rest-express@1.0.0 start
+> NODE_ENV=production node dist/index.js
+node:fs:1364
+  const result = binding.mkdir(
+                         ^
+Error: EACCES: permission denied, mkdir '/data/uploads'
+    at Object.mkdirSync (node:fs:1364:26)
+    at module.exports.makeDirSync (/opt/render/project/src/node_modules/fs-extra/lib/mkdirs/make-dir.js:23:13)
+    at file:///opt/render/project/src/dist/index.js:1112:5
+    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:578:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5) {
+  errno: -13,
+  code: 'EACCES',
+  syscall: 'mkdir',
+  path: '/data/uploads'
+}
+Node.js v22.14.0
+==> Deploying...
+==> Running 'npm run start'
+> rest-express@1.0.0 start
+> NODE_ENV=production node dist/index.js
+node:fs:1364
+  const result = binding.mkdir(
+                         ^
+Error: EACCES: permission denied, mkdir '/data/uploads'
+    at Object.mkdirSync (node:fs:1364:26)
+    at module.exports.makeDirSync (/opt/render/project/src/node_modules/fs-extra/lib/mkdirs/make-dir.js:23:13)
+    at file:///opt/render/project/src/dist/index.js:1112:5
+    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:578:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5) {
+  errno: -13,
+  code: 'EACCES',
+  syscall: 'mkdir',
+  path: '/data/uploads'
+}
+Node.js v22.14.0
+==> Running 'npm run start'
+> rest-express@1.0.0 start
+> NODE_ENV=production node dist/index.js
+node:fs:1364
+  const result = binding.mkdir(
+                         ^
+Error: EACCES: permission denied, mkdir '/data/uploads'
+    at Object.mkdirSync (node:fs:1364:26)
+    at module.exports.makeDirSync (/opt/render/project/src/node_modules/fs-extra/lib/mkdirs/make-dir.js:23:13)
+    at file:///opt/render/project/src/dist/index.js:1112:5
+    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:578:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5) {
+  errno: -13,
+  code: 'EACCES',
+  syscall: 'mkdir',
+  path: '/data/uploads'
+}
+Node.js v22.14.0
+==> Deploying...
+==> Running 'npm run start'
+> rest-express@1.0.0 start
+> NODE_ENV=production node dist/index.js
+node:fs:1364
+  const result = binding.mkdir(
+                         ^
+Error: EACCES: permission denied, mkdir '/data/uploads'
+    at Object.mkdirSync (node:fs:1364:26)
+    at module.exports.makeDirSync (/opt/render/project/src/node_modules/fs-extra/lib/mkdirs/make-dir.js:23:13)
+    at file:///opt/render/project/src/dist/index.js:1112:5
+    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:578:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5) {
+  errno: -13,
+  code: 'EACCES',
+  syscall: 'mkdir',
+  path: '/data/uploads'
+}
+Node.js v22.14.0
+==> Exited with status 1
+==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
+==> Running 'npm run start'
+> rest-express@1.0.0 start
+> NODE_ENV=production node dist/index.js
+node:fs:1364
+  const result = binding.mkdir(
+                         ^
+Error: EACCES: permission denied, mkdir '/data/uploads'
+    at Object.mkdirSync (node:fs:1364:26)
+    at module.exports.makeDirSync (/opt/render/project/src/node_modules/fs-extra/lib/mkdirs/make-dir.js:23:13)
+    at file:///opt/render/project/src/dist/index.js:1112:5
+    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:578:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5) {
+  errno: -13,
+  code: 'EACCES',
+  syscall: 'mkdir',
+  path: '/data/uploads'
+}
+Node.js v22.14.0
+==> Deploying...
+==> Running 'npm run start'
+> rest-express@1.0.0 start
+> NODE_ENV=production node dist/index.js
+node:fs:1364
+  const result = binding.mkdir(
+                         ^
+Error: EACCES: permission denied, mkdir '/data/uploads'
+    at Object.mkdirSync (node:fs:1364:26)
+    at module.exports.makeDirSync (/opt/render/project/src/node_modules/fs-extra/lib/mkdirs/make-dir.js:23:13)
+    at file:///opt/render/project/src/dist/index.js:1112:5
+    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:578:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5) {
+  errno: -13,
+  code: 'EACCES',
+  syscall: 'mkdir',
+  path: '/data/uploads'
+}
+Node.js v22.14.0
+==> Exited with status 1
+==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
+==> Running 'npm run start'
+> rest-express@1.0.0 start
+> NODE_ENV=production node dist/index.js
+node:fs:1364
+  const result = binding.mkdir(
+                         ^
+Error: EACCES: permission denied, mkdir '/data/uploads'
+    at Object.mkdirSync (node:fs:1364:26)
+    at module.exports.makeDirSync (/opt/render/project/src/node_modules/fs-extra/lib/mkdirs/make-dir.js:23:13)
+    at file:///opt/render/project/src/dist/index.js:1112:5
+    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:578:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5) {
+  errno: -13,
+  code: 'EACCES',
+  syscall: 'mkdir',
+  path: '/data/uploads'
+}
+Node.js v22.14.0
+==> Deploying...
+> NODE_ENV=production node dist/index.js
+node:fs:1364
+  const result = binding.mkdir(
+                         ^
+Error: EACCES: permission denied, mkdir '/data/uploads'
+    at Object.mkdirSync (node:fs:1364:26)
+    at module.exports.makeDirSync (/opt/render/project/src/node_modules/fs-extra/lib/mkdirs/make-dir.js:23:13)
+    at file:///opt/render/project/src/dist/index.js:1137:5
+    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:578:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5) {
+  errno: -13,
+  code: 'EACCES',
+  syscall: 'mkdir',
+  path: '/data/uploads'
+}
+Node.js v22.14.0
+==> Exited with status 1
+==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
+==> Running 'npm run start'
+> rest-express@1.0.0 start
+> NODE_ENV=production node dist/index.js
+node:fs:1364
+  const result = binding.mkdir(
+                         ^
+Error: EACCES: permission denied, mkdir '/data/uploads'
+    at Object.mkdirSync (node:fs:1364:26)
+    at module.exports.makeDirSync (/opt/render/project/src/node_modules/fs-extra/lib/mkdirs/make-dir.js:23:13)
+    at file:///opt/render/project/src/dist/index.js:1137:5
+    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:578:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5) {
+  errno: -13,
+  code: 'EACCES',
+  syscall: 'mkdir',
+  path: '/data/uploads'
+}
+Node.js v22.14.0
