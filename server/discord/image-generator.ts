@@ -1,6 +1,13 @@
 import { createCanvas, loadImage, registerFont } from 'canvas';
 import { WelcomeConfig } from '@shared/schema';
-import { join } from 'path';
+import { fileURLToPath } from 'url';
+import path from 'path';
+import fs from 'fs-extra';
+
+// Get the current directory path
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const rootDir = path.join(__dirname, '../..');
 
 // Default background images
 const DEFAULT_BACKGROUNDS = {
@@ -22,18 +29,47 @@ export async function generateWelcomeImage(
   // Default config values
   const backgroundImage = config.backgroundImage || 'default';
   const textColor = config.textColor || '#FFFFFF';
+  const customBackgroundUrl = config.customBackgroundUrl;
   
   // Load background
   let backgroundUrl = DEFAULT_BACKGROUNDS[backgroundImage as keyof typeof DEFAULT_BACKGROUNDS];
-  if (!backgroundUrl && backgroundImage !== 'custom') {
-    backgroundUrl = DEFAULT_BACKGROUNDS.default;
-  } else if (backgroundImage === 'custom' && typeof backgroundImage === 'string' && backgroundImage.startsWith('http')) {
-    backgroundUrl = backgroundImage;
-  }
   
-  // Draw background
-  const background = await loadImage(backgroundUrl);
-  ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+  // Handle custom uploaded backgrounds
+  if (backgroundImage === 'custom' && customBackgroundUrl) {
+    try {
+      // If it's a local uploaded file
+      if (customBackgroundUrl.startsWith('/uploads/')) {
+        const localPath = path.join(rootDir, customBackgroundUrl);
+        if (fs.existsSync(localPath)) {
+          // Draw background from local path
+          const background = await loadImage(localPath);
+          ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+        } else {
+          // Fallback to default if file doesn't exist
+          console.warn(`Custom background file not found: ${localPath}`);
+          const background = await loadImage(DEFAULT_BACKGROUNDS.default);
+          ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+        }
+      } else {
+        // If it's a URL (for testing)
+        const background = await loadImage(customBackgroundUrl);
+        ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+      }
+    } catch (error) {
+      console.error('Error loading custom background:', error);
+      // Continue to use default if there's an error
+      backgroundUrl = DEFAULT_BACKGROUNDS.default;
+      const background = await loadImage(backgroundUrl);
+      ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+    }
+  } else {
+    // Use the selected background from defaults
+    if (!backgroundUrl) {
+      backgroundUrl = DEFAULT_BACKGROUNDS.default;
+    }
+    const background = await loadImage(backgroundUrl);
+    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+  }
   
   // Add overlay to make text more readable
   ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';

@@ -55,6 +55,7 @@ export const welcomeConfigs = pgTable("welcome_configs", {
   welcomeMessage: text("welcome_message").notNull().default("Welcome to @server, @username!"),
   includeImage: boolean("include_image").notNull().default(true),
   backgroundImage: text("background_image").notNull().default("default"),
+  customBackgroundUrl: text("custom_background_url"),
   textColor: text("text_color").notNull().default("#FFFFFF"),
 });
 

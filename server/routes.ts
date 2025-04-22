@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { startBot, getBot } from "./discord/bot";
@@ -7,6 +7,45 @@ import {
   insertWelcomeConfigSchema 
 } from "@shared/schema";
 import { z } from "zod";
+import multer from "multer";
+import path from "path";
+import fs from "fs-extra";
+import { fileURLToPath } from 'url';
+
+// Get the current directory path in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, "../uploads");
+fs.ensureDirSync(uploadsDir);
+
+// Configure multer for file uploads
+const storage_upload = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadsDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, 'background-' + uniqueSuffix + ext);
+  }
+});
+
+const upload = multer({
+  storage: storage_upload,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: function (req, file, cb) {
+    // Accept only image files
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  }
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize Discord bot if token is available
@@ -105,6 +144,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           welcomeMessage: "Welcome to @server, @username!",
           includeImage: true,
           backgroundImage: "default",
+          customBackgroundUrl: null,
           textColor: "#FFFFFF"
         };
         return res.json(defaultConfig);
@@ -167,6 +207,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to generate preview image:", error);
       res.status(500).json({ message: "Failed to generate preview image" });
+    }
+  });
+
+  // Upload custom background image
+  app.post("/api/servers/:serverId/welcome/upload", upload.single('image'), async (req, res) => {
+    try {
+      const file = req.file;
+      const { serverId } = req.params;
+      
+      if (!file) {
+        return res.status(400).json({ message: "No image file provided" });
+      }
+
+      // Get the relative path to the image
+      const relativePath = path.relative(path.join(__dirname, ".."), file.path);
+      const imageUrl = `/${relativePath.replace(/\\/g, '/')}`;
+
+      // Update the welcome config with the custom image URL
+      const currentConfig = await storage.getWelcomeConfig(serverId);
+      const updatedConfig = {
+        ...currentConfig,
+        serverId,
+        backgroundImage: 'custom',
+        customBackgroundUrl: imageUrl
+      };
+
+      const config = await storage.updateWelcomeConfig(updatedConfig);
+      
+      // Apply changes to bot
+      const bot = getBot();
+      if (bot) {
+        bot.updateWelcomeConfig(config);
+      }
+      
+      res.json({ message: "Image uploaded successfully", config });
+    } catch (error) {
+      console.error("Failed to upload image:", error);
+      res.status(500).json({ message: "Failed to upload image" });
+    }
+  });
+
+  // Serve uploaded files
+  app.use('/uploads', (req, res, next) => {
+    const filePath = path.join(__dirname, '../uploads', req.path);
+    if (fs.existsSync(filePath)) {
+      res.sendFile(filePath);
+    } else {
+      next();
     }
   });
 
