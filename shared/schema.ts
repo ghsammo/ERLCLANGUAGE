@@ -77,3 +77,18 @@ export const channels = pgTable("channels", {
 export const insertChannelSchema = createInsertSchema(channels);
 export type InsertChannel = z.infer<typeof insertChannelSchema>;
 export type Channel = typeof channels.$inferSelect;
+
+// Auto-role configuration
+export const autoRoleConfigs = pgTable("auto_role_configs", {
+  id: serial("id").primaryKey(),
+  serverId: text("server_id").notNull().references(() => servers.id),
+  enabled: boolean("enabled").notNull().default(false),
+  roleIds: text("role_ids").array().notNull().default([]),
+});
+
+export const insertAutoRoleConfigSchema = createInsertSchema(autoRoleConfigs).omit({
+  id: true
+});
+
+export type InsertAutoRoleConfig = z.infer<typeof insertAutoRoleConfigSchema>;
+export type AutoRoleConfig = typeof autoRoleConfigs.$inferSelect;

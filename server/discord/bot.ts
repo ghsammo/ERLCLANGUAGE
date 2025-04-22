@@ -3,19 +3,21 @@ import { setupEventHandlers } from './events';
 import { registerCommands } from './commands';
 import { storage } from '../storage';
 import { generateWelcomeImage } from './image-generator';
-import { type LoggingConfig, type WelcomeConfig, type InsertServer, type InsertChannel } from '@shared/schema';
+import { type LoggingConfig, type WelcomeConfig, type AutoRoleConfig, type InsertServer, type InsertChannel } from '@shared/schema';
 
 class DiscordBot {
   private client: Client;
   private token: string;
   private loggingConfigs: Map<string, LoggingConfig>;
   private welcomeConfigs: Map<string, WelcomeConfig>;
+  private autoRoleConfigs: Map<string, AutoRoleConfig>;
   private isReady: boolean;
 
   constructor(token: string) {
     this.token = token;
     this.loggingConfigs = new Map();
     this.welcomeConfigs = new Map();
+    this.autoRoleConfigs = new Map();
     this.isReady = false;
 
     // Initialize Discord.js client with necessary intents

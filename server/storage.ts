@@ -8,6 +8,8 @@ import {
   type InsertLoggingConfig, 
   type WelcomeConfig, 
   type InsertWelcomeConfig,
+  type AutoRoleConfig,
+  type InsertAutoRoleConfig,
   type Channel,
   type InsertChannel
 } from "@shared/schema";
@@ -34,6 +36,10 @@ export interface IStorage {
   getWelcomeConfig(serverId: string): Promise<WelcomeConfig | undefined>;
   updateWelcomeConfig(config: InsertWelcomeConfig): Promise<WelcomeConfig>;
   
+  // Auto-role config methods
+  getAutoRoleConfig(serverId: string): Promise<AutoRoleConfig | undefined>;
+  updateAutoRoleConfig(config: InsertAutoRoleConfig): Promise<AutoRoleConfig>;
+  
   // Channel methods
   getChannels(serverId: string): Promise<Channel[]>;
   getChannel(id: string): Promise<Channel | undefined>;
@@ -46,6 +52,7 @@ export class MemStorage implements IStorage {
   private servers: Map<string, Server>;
   private loggingConfigs: Map<string, LoggingConfig>;
   private welcomeConfigs: Map<string, WelcomeConfig>;
+  private autoRoleConfigs: Map<string, AutoRoleConfig>;
   private channels: Map<string, Channel>;
   currentId: number;
 
@@ -54,6 +61,7 @@ export class MemStorage implements IStorage {
     this.servers = new Map();
     this.loggingConfigs = new Map();
     this.welcomeConfigs = new Map();
+    this.autoRoleConfigs = new Map();
     this.channels = new Map();
     this.currentId = 1;
   }
@@ -130,6 +138,28 @@ export class MemStorage implements IStorage {
       const id = this.currentId++;
       const newConfig: WelcomeConfig = { ...config, id };
       this.welcomeConfigs.set(id.toString(), newConfig);
+      return newConfig;
+    }
+  }
+  
+  // Auto-role config methods
+  async getAutoRoleConfig(serverId: string): Promise<AutoRoleConfig | undefined> {
+    return Array.from(this.autoRoleConfigs.values()).find(
+      (config) => config.serverId === serverId
+    );
+  }
+  
+  async updateAutoRoleConfig(config: InsertAutoRoleConfig): Promise<AutoRoleConfig> {
+    const existingConfig = await this.getAutoRoleConfig(config.serverId);
+    
+    if (existingConfig) {
+      const updatedConfig: AutoRoleConfig = { ...existingConfig, ...config };
+      this.autoRoleConfigs.set(existingConfig.id.toString(), updatedConfig);
+      return updatedConfig;
+    } else {
+      const id = this.currentId++;
+      const newConfig: AutoRoleConfig = { ...config, id };
+      this.autoRoleConfigs.set(id.toString(), newConfig);
       return newConfig;
     }
   }
