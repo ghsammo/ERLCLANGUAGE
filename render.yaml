@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: discord-bot
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run dev
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DISCORD_BOT_TOKEN
+        sync: false # This will prompt for the token during deployment
+    autoDeploy: true
