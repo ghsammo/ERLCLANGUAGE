@@ -8,7 +8,7 @@ export default function Home() {
     <div className="grid-background min-h-screen bg-black p-4">
       <div className="flex flex-col items-center justify-center">
         <img 
-          src="/attached_assets/Pasted-data-image-png-base64-iVBORw0KGgoAAAANSUhEUgAAAfQAAAH0CAYAAADL1t-KAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAEvG-1745356922208.txt" 
+          src="https://imgur.com/IOl7QK0.png" 
           alt="ERLC LANGUAGE Logo" 
           className="w-48 h-48 mb-8"
         />
