@@ -8,6 +8,8 @@ import {
 } from 'discord.js';
 import { getBot } from './bot';
 import { storage } from '../storage';
+import * as fs from 'fs';
+import * as path from 'path';
 import { type LoggingConfig, type WelcomeConfig } from '@shared/schema';
 
 // Command handler for set logs command
@@ -196,9 +198,6 @@ async function handleWelcomerImageCommand(interaction: ChatInputCommandInteracti
     const imagePath = `./uploads/${filename}`;
     
     // Save the image locally
-    const fs = require('fs');
-    const path = require('path');
-    
     // Ensure uploads directory exists
     if (!fs.existsSync('./uploads')) {
       fs.mkdirSync('./uploads', { recursive: true });
