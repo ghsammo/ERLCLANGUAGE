@@ -45,9 +45,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   } catch (error) {
     console.warn("Failed to start Discord bot:", error);
   }
-  
+
   // API routes
-  
+
   // Get servers
   app.get("/api/servers", async (req, res) => {
     try {
@@ -57,7 +57,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch servers" });
     }
   });
-  
+
   // Get channels for a server
   app.get("/api/servers/:serverId/channels", async (req, res) => {
     try {
@@ -68,13 +68,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch channels" });
     }
   });
-  
+
   // Get logging config for a server
   app.get("/api/servers/:serverId/logging", async (req, res) => {
     try {
       const { serverId } = req.params;
       const config = await storage.getLoggingConfig(serverId);
-      
+
       if (!config) {
         const defaultConfig = {
           serverId,
@@ -88,13 +88,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
         return res.json(defaultConfig);
       }
-      
+
       res.json(config);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch logging configuration" });
     }
   });
-  
+
   // Update logging config for a server
   app.post("/api/servers/:serverId/logging", async (req, res) => {
     try {
@@ -103,15 +103,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...req.body,
         serverId
       });
-      
+
       const config = await storage.updateLoggingConfig(validatedData);
-      
+
       // Apply changes to bot
       const bot = getBot();
       if (bot) {
         bot.updateLoggingConfig(config);
       }
-      
+
       res.json(config);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -120,13 +120,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to update logging configuration" });
     }
   });
-  
+
   // Get welcome config for a server
   app.get("/api/servers/:serverId/welcome", async (req, res) => {
     try {
       const { serverId } = req.params;
       const config = await storage.getWelcomeConfig(serverId);
-      
+
       if (!config) {
         const defaultConfig = {
           serverId,
@@ -140,13 +140,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
         return res.json(defaultConfig);
       }
-      
+
       res.json(config);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch welcome configuration" });
     }
   });
-  
+
   // Update welcome config for a server
   app.post("/api/servers/:serverId/welcome", async (req, res) => {
     try {
@@ -155,15 +155,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...req.body,
         serverId
       });
-      
+
       const config = await storage.updateWelcomeConfig(validatedData);
-      
+
       // Apply changes to bot
       const bot = getBot();
       if (bot) {
         bot.updateWelcomeConfig(config);
       }
-      
+
       res.json(config);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -172,12 +172,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to update welcome configuration" });
     }
   });
-  
+
   // Preview welcome image
   app.post("/api/welcome/preview", async (req, res) => {
     try {
       const { username, serverName, config } = req.body;
-      
+
       const bot = getBot();
       if (!bot) {
         // If bot is not available, use the image generator directly
@@ -191,7 +191,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(500).json({ message: "Image generation failed" });
         }
       }
-      
+
       const imageBuffer = await bot.generateWelcomeImage(username, serverName, config);
       res.set('Content-Type', 'image/png');
       res.send(imageBuffer);
@@ -206,7 +206,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const file = req.file;
       const { serverId } = req.params;
-      
+
       if (!file) {
         return res.status(400).json({ message: "No image file provided" });
       }
@@ -216,7 +216,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!bot) {
         return res.status(500).json({ message: "Discord bot not available" });
       }
-      
+
       const channel = await bot.getClient().channels.fetch('1364145628241727561');
       if (!channel?.isTextBased()) {
         return res.status(500).json({ message: "Discord channel not available" });
@@ -228,7 +228,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       const message = await channel.send({ files: [attachment] });
       const imageUrl = message.attachments.first()?.url;
-      
+
       if (!imageUrl) {
         return res.status(500).json({ message: "Failed to upload image" });
       }
@@ -243,13 +243,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       const config = await storage.updateWelcomeConfig(updatedConfig);
-      
+
       // Apply changes to bot
-      const bot = getBot();
       if (bot) {
         bot.updateWelcomeConfig(config);
       }
-      
+
       res.json({ message: "Image uploaded successfully", config });
     } catch (error) {
       console.error("Failed to upload image:", error);
