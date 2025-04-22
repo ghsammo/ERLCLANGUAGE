@@ -8,8 +8,8 @@ packages = ["libuuid", "cairo", "pango", "libpng", "libjpeg"]
 
 [deployment]
 deploymentTarget = "autoscale"
-build = ["npm", "run", "build"]
-run = ["npm", "run", "start"]
+build = ["sh", "-c", "npm install && npm run build"]
+run = ["sh", "-c", "npm run start"]
 
 [workflows]
 runButton = "Project"
