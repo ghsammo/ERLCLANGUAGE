@@ -83,6 +83,12 @@ class DiscordBot {
       if (welcomeConfig) {
         this.welcomeConfigs.set(server.id, welcomeConfig);
       }
+      
+      // Load auto-role config
+      const autoRoleConfig = await storage.getAutoRoleConfig(server.id);
+      if (autoRoleConfig) {
+        this.autoRoleConfigs.set(server.id, autoRoleConfig);
+      }
     }
   }
 
@@ -144,6 +150,14 @@ class DiscordBot {
 
   updateWelcomeConfig(config: WelcomeConfig): void {
     this.welcomeConfigs.set(config.serverId, config);
+  }
+  
+  getAutoRoleConfig(serverId: string): AutoRoleConfig | undefined {
+    return this.autoRoleConfigs.get(serverId);
+  }
+  
+  updateAutoRoleConfig(config: AutoRoleConfig): void {
+    this.autoRoleConfigs.set(config.serverId, config);
   }
 
   getClient(): Client {

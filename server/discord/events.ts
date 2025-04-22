@@ -25,41 +25,59 @@ export function setupEventHandlers(client: Client, bot: DiscordBot): void {
   // Guild Member Add event (user joins)
   client.on(Events.GuildMemberAdd, async (member: GuildMember) => {
     try {
-      const config = bot.getWelcomeConfig(member.guild.id);
+      // Handle welcome message
+      const welcomeConfig = bot.getWelcomeConfig(member.guild.id);
       
-      // Only proceed if welcome messages are enabled
-      if (!config || !config.enabled || !config.welcomeChannelId) {
-        return;
+      // Only proceed with welcome message if enabled
+      if (welcomeConfig && welcomeConfig.enabled && welcomeConfig.welcomeChannelId) {
+        const welcomeChannel = member.guild.channels.cache.get(welcomeConfig.welcomeChannelId) as TextChannel;
+        if (welcomeChannel && welcomeChannel.isTextBased()) {
+          // Format welcome message
+          const welcomeMessage = welcomeConfig.welcomeMessage
+            .replace(/@server/g, member.guild.name)
+            .replace(/@username/g, member.user.username);
+          
+          // Generate welcome image if enabled
+          if (welcomeConfig.includeImage) {
+            const imageBuffer = await generateWelcomeImage(
+              member.user.username,
+              member.guild.name,
+              welcomeConfig
+            );
+            
+            await welcomeChannel.send({
+              content: welcomeMessage,
+              files: [{
+                attachment: imageBuffer,
+                name: 'welcome.png'
+              }]
+            });
+          } else {
+            await welcomeChannel.send(welcomeMessage);
+          }
+        } else {
+          console.error(`Welcome channel not found or not a text channel for guild ${member.guild.id}`);
+        }
       }
       
-      const welcomeChannel = member.guild.channels.cache.get(config.welcomeChannelId) as TextChannel;
-      if (!welcomeChannel || !welcomeChannel.isTextBased()) {
-        console.error(`Welcome channel not found or not a text channel for guild ${member.guild.id}`);
-        return;
-      }
+      // Handle auto role assignment
+      const autoRoleConfig = bot.getAutoRoleConfig(member.guild.id);
       
-      // Format welcome message
-      const welcomeMessage = config.welcomeMessage
-        .replace(/@server/g, member.guild.name)
-        .replace(/@username/g, member.user.username);
-      
-      // Generate welcome image if enabled
-      if (config.includeImage) {
-        const imageBuffer = await generateWelcomeImage(
-          member.user.username,
-          member.guild.name,
-          config
-        );
-        
-        await welcomeChannel.send({
-          content: welcomeMessage,
-          files: [{
-            attachment: imageBuffer,
-            name: 'welcome.png'
-          }]
-        });
-      } else {
-        await welcomeChannel.send(welcomeMessage);
+      // Only proceed with auto role if enabled and roles are configured
+      if (autoRoleConfig && autoRoleConfig.enabled && autoRoleConfig.roleIds.length > 0) {
+        for (const roleId of autoRoleConfig.roleIds) {
+          try {
+            const role = member.guild.roles.cache.get(roleId);
+            if (role) {
+              await member.roles.add(role);
+              console.log(`Added role ${role.name} to new member ${member.user.tag} in ${member.guild.name}`);
+            } else {
+              console.warn(`Role ${roleId} not found in guild ${member.guild.id}`);
+            }
+          } catch (roleError) {
+            console.error(`Error adding role ${roleId} to member ${member.id}:`, roleError);
+          }
+        }
       }
     } catch (error) {
       console.error('Error handling guild member add event:', error);

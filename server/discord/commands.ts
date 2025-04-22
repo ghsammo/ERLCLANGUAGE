@@ -269,6 +269,201 @@ async function handleWelcomerImageCommand(interaction: ChatInputCommandInteracti
   }
 }
 
+// Command handler for auto-role command
+async function handleAutoRoleCommand(interaction: ChatInputCommandInteraction) {
+  try {
+    // Check if the user has admin permissions
+    if (!interaction.memberPermissions?.has('Administrator')) {
+      await interaction.reply({
+        content: 'You need Administrator permissions to use this command.',
+        ephemeral: true
+      });
+      return;
+    }
+    
+    const guildId = interaction.guildId;
+    if (!guildId) {
+      await interaction.reply({
+        content: 'This command can only be used in a server.',
+        ephemeral: true
+      });
+      return;
+    }
+    
+    // Get current auto-role config
+    let config = await storage.getAutoRoleConfig(guildId);
+    
+    // Get subcommand
+    const subcommand = interaction.options.getSubcommand(false);
+    
+    if (subcommand === 'add') {
+      const role = interaction.options.getRole('role');
+      if (!role) {
+        await interaction.reply({
+          content: 'Please provide a valid role.',
+          ephemeral: true
+        });
+        return;
+      }
+      
+      // Initialize config if it doesn't exist
+      if (!config) {
+        config = {
+          id: 0,
+          serverId: guildId,
+          enabled: true,
+          roleIds: [role.id]
+        };
+      } else {
+        // Add role if not already in the list
+        if (!config.roleIds.includes(role.id)) {
+          config.roleIds.push(role.id);
+        }
+      }
+      
+      // Update config
+      config = await storage.updateAutoRoleConfig(config);
+      
+      // Update bot's config
+      const bot = getBot();
+      if (bot) {
+        bot.updateAutoRoleConfig(config);
+      }
+      
+      await interaction.reply({
+        content: `Role ${role.name} will now be automatically assigned to new members.`,
+        ephemeral: true
+      });
+    } 
+    else if (subcommand === 'remove') {
+      const role = interaction.options.getRole('role');
+      if (!role) {
+        await interaction.reply({
+          content: 'Please provide a valid role.',
+          ephemeral: true
+        });
+        return;
+      }
+      
+      // Check if config exists
+      if (!config || !config.roleIds.includes(role.id)) {
+        await interaction.reply({
+          content: `Role ${role.name} is not in the auto-role list.`,
+          ephemeral: true
+        });
+        return;
+      }
+      
+      // Remove role from list
+      config.roleIds = config.roleIds.filter(id => id !== role.id);
+      
+      // Update config
+      config = await storage.updateAutoRoleConfig(config);
+      
+      // Update bot's config
+      const bot = getBot();
+      if (bot) {
+        bot.updateAutoRoleConfig(config);
+      }
+      
+      await interaction.reply({
+        content: `Role ${role.name} has been removed from the auto-role list.`,
+        ephemeral: true
+      });
+    }
+    else if (subcommand === 'list') {
+      if (!config || config.roleIds.length === 0) {
+        await interaction.reply({
+          content: 'No auto-roles have been configured for this server.',
+          ephemeral: true
+        });
+        return;
+      }
+      
+      // Build list of roles
+      const roleNames = config.roleIds.map(id => {
+        const role = interaction.guild?.roles.cache.get(id);
+        return role ? `<@&${id}>` : `Unknown role (${id})`;
+      });
+      
+      const statusText = config.enabled ? 'Enabled' : 'Disabled';
+      
+      await interaction.reply({
+        content: `**Auto-Role Status: ${statusText}**\n\nThe following roles will be automatically assigned to new members:\n${roleNames.join('\n')}`,
+        ephemeral: true
+      });
+    }
+    else if (subcommand === 'toggle') {
+      if (!config) {
+        config = {
+          id: 0,
+          serverId: guildId,
+          enabled: true,
+          roleIds: []
+        };
+      } else {
+        // Toggle enabled status
+        config.enabled = !config.enabled;
+      }
+      
+      // Update config
+      config = await storage.updateAutoRoleConfig(config);
+      
+      // Update bot's config
+      const bot = getBot();
+      if (bot) {
+        bot.updateAutoRoleConfig(config);
+      }
+      
+      const statusText = config.enabled ? 'enabled' : 'disabled';
+      
+      await interaction.reply({
+        content: `Auto-role has been ${statusText}.`,
+        ephemeral: true
+      });
+    }
+    else {
+      // Default command with no subcommand
+      if (!config) {
+        config = {
+          id: 0,
+          serverId: guildId,
+          enabled: true,
+          roleIds: []
+        };
+        
+        // Update config
+        config = await storage.updateAutoRoleConfig(config);
+        
+        // Update bot's config
+        const bot = getBot();
+        if (bot) {
+          bot.updateAutoRoleConfig(config);
+        }
+        
+        await interaction.reply({
+          content: 'Auto-role has been enabled. Use `/auto-role add <role>` to add roles that will be automatically assigned to new members.',
+          ephemeral: true
+        });
+      } else {
+        const statusText = config.enabled ? 'enabled' : 'disabled';
+        const roleCount = config.roleIds.length;
+        
+        await interaction.reply({
+          content: `Auto-role is currently ${statusText} with ${roleCount} role(s) configured. Use subcommands to manage auto-roles:\n• \`/auto-role add <role>\` - Add a role\n• \`/auto-role remove <role>\` - Remove a role\n• \`/auto-role list\` - List configured roles\n• \`/auto-role toggle\` - Toggle auto-role on/off`,
+          ephemeral: true
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Error handling auto-role command:', error);
+    await interaction.reply({
+      content: 'There was an error while processing this command.',
+      ephemeral: true
+    });
+  }
+}
+
 export function registerCommands(client: Client): void {
   // Register slash command handler
   client.on(Events.InteractionCreate, async (interaction) => {
@@ -286,6 +481,9 @@ export function registerCommands(client: Client): void {
       } else {
         await handleWelcomerCommand(interaction);
       }
+    }
+    else if (interaction.commandName === 'auto-role') {
+      await handleAutoRoleCommand(interaction);
     }
   });
   
@@ -315,6 +513,49 @@ export function registerCommands(client: Client): void {
                   required: true
                 }
               ]
+            }
+          ]
+        },
+        {
+          name: 'auto-role',
+          description: 'Automatically assign roles to new members',
+          type: ApplicationCommandType.ChatInput,
+          options: [
+            {
+              name: 'add',
+              description: 'Add a role to be automatically assigned to new members',
+              type: ApplicationCommandOptionType.Subcommand,
+              options: [
+                {
+                  name: 'role',
+                  description: 'The role to add',
+                  type: ApplicationCommandOptionType.Role,
+                  required: true
+                }
+              ]
+            },
+            {
+              name: 'remove',
+              description: 'Remove a role from being automatically assigned',
+              type: ApplicationCommandOptionType.Subcommand,
+              options: [
+                {
+                  name: 'role',
+                  description: 'The role to remove',
+                  type: ApplicationCommandOptionType.Role,
+                  required: true
+                }
+              ]
+            },
+            {
+              name: 'list',
+              description: 'List all roles that will be automatically assigned',
+              type: ApplicationCommandOptionType.Subcommand
+            },
+            {
+              name: 'toggle',
+              description: 'Toggle auto-role on/off',
+              type: ApplicationCommandOptionType.Subcommand
             }
           ]
         }
