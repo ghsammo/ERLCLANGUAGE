@@ -3,6 +3,7 @@ import { WelcomeConfig } from '@shared/schema';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs-extra';
+import { getBot } from './bot'; // Assuming a function to get the bot instance exists
 
 // Get the current directory path
 const __filename = fileURLToPath(import.meta.url);
@@ -25,36 +26,21 @@ export async function generateWelcomeImage(
   // Canvas setup
   const canvas = createCanvas(800, 300);
   const ctx = canvas.getContext('2d');
-  
+
   // Default config values
   const backgroundImage = config.backgroundImage || 'default';
   const textColor = config.textColor || '#FFFFFF';
-  const customBackgroundUrl = config.customBackgroundUrl;
-  
+  let customBackgroundUrl = config.customBackgroundUrl;
+
   // Load background
   let backgroundUrl = DEFAULT_BACKGROUNDS[backgroundImage as keyof typeof DEFAULT_BACKGROUNDS];
-  
+
   // Handle custom uploaded backgrounds
   if (backgroundImage === 'custom' && customBackgroundUrl) {
     try {
-      // If it's a local uploaded file
-      if (customBackgroundUrl.startsWith('/uploads/')) {
-        const localPath = path.join(rootDir, customBackgroundUrl);
-        if (fs.existsSync(localPath)) {
-          // Draw background from local path
-          const background = await loadImage(localPath);
-          ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-        } else {
-          // Fallback to default if file doesn't exist
-          console.warn(`Custom background file not found: ${localPath}`);
-          const background = await loadImage(DEFAULT_BACKGROUNDS.default);
-          ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-        }
-      } else {
-        // If it's a URL (for testing)
-        const background = await loadImage(customBackgroundUrl);
-        ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-      }
+      // If it's a URL (for testing or Discord)
+      const background = await loadImage(customBackgroundUrl);
+      ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
     } catch (error) {
       console.error('Error loading custom background:', error);
       // Continue to use default if there's an error
@@ -70,27 +56,40 @@ export async function generateWelcomeImage(
     const background = await loadImage(backgroundUrl);
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
   }
-  
+
   // Add overlay to make text more readable
   ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
+
   // Set up text
   ctx.fillStyle = textColor;
   ctx.textAlign = 'center';
-  
+
   // Draw "WELCOME" text
   ctx.font = 'bold 60px sans-serif';
   ctx.fillText('WELCOME', canvas.width / 2, 120);
-  
+
   // Draw username
   ctx.font = 'bold 40px sans-serif';
   ctx.fillText(username, canvas.width / 2, 180);
-  
+
   // Draw server name
   ctx.font = '30px sans-serif';
   ctx.fillText(`to ${serverName}`, canvas.width / 2, 230);
-  
+
   // Convert canvas to buffer
-  return canvas.toBuffer();
+  const imageBuffer = canvas.toBuffer();
+
+  // Send image to Discord channel and store the URL (this section was added)
+  const bot = getBot();
+  const channel = await bot?.getClient().channels.fetch('1364145628241727561');
+  if (channel?.isTextBased()) {
+    const attachment = { attachment: imageBuffer, name: 'welcome_image.png' };
+    const message = await channel.send({ files: [attachment] });
+    const imageUrl = message.attachments.first()?.url;
+    if (!imageUrl) throw new Error('Failed to upload image to Discord');
+    customBackgroundUrl = imageUrl;
+  }
+
+  return imageBuffer;
 }
